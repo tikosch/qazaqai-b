@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import auth, profile, tests
+from app.routers import auth, profile, tests, testres
 from app.db.base import Base
 from app.db.session import engine
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +21,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(profile.router, prefix="/api", tags=["profile"])
 app.include_router(tests.router, prefix="/api", tags=["tests"])
+app.include_router(testres.router, prefix="/api", tags=["tests"])
+
 
 
 @app.get("/")

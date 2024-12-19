@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.schemas.profile import TeacherProfileDetails, StudentProfileDetails, StudentDetails, TeacherDetails
+from app.schemas.profile import TeacherProfileDetails, StudentProfileDetails, StudentDetails, TeacherDetails, TestResultInProfile
 from app.core.security import decode_token
 from app.models.teacher_referral import TeacherReferral
 from app.models.teacher_student import TeacherStudents
 from app.models.user import User
+from app.models.testres import TestResult
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 
@@ -65,6 +66,20 @@ def get_profile(db: Session = Depends(get_db), current_user_and_payload=Depends(
         if not teacher:
             raise HTTPException(status_code=404, detail="Teacher not found.")
 
+        # Fetch test results for the current student
+        test_results = db.query(TestResult).filter(TestResult.student_id == user_id).all()
+        serialized_results = [
+            TestResultInProfile(
+                testName=result.testName,
+                testTopic=result.testTopic,
+                totalQuestions=result.totalQuestions,
+                rightAnswersCount=result.rightAnswersCount,
+                wrongAnswersCount=result.wrongAnswersCount,
+                subTopics=result.subTopics
+            )
+            for result in test_results
+        ]
+
         return StudentProfileDetails(
             Id=str(user_id),
             UserName=user.username,
@@ -73,7 +88,8 @@ def get_profile(db: Session = Depends(get_db), current_user_and_payload=Depends(
             Teacher=TeacherDetails(
                 TeacherId=str(teacher.id),
                 TeacherName=teacher.username
-            )
+            ),
+            TestResults=serialized_results  # Include test results in the profile
         )
     else:
         raise HTTPException(status_code=403, detail="Role not supported")

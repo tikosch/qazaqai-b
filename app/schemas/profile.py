@@ -22,12 +22,26 @@ class TeacherProfileDetails(BaseModel):
     class Config:
         orm_mode = True
 
+
+class TestResultInProfile(BaseModel):
+    testName: str
+    testTopic: str
+    totalQuestions: int
+    rightAnswersCount: int
+    wrongAnswersCount: int
+    subTopics: List[str]
+
+    class Config:
+        orm_mode = True
+
+
 class StudentProfileDetails(BaseModel):
     Id: str
     UserName: str
     Email: EmailStr
     PhoneNumber: str
     Teacher: TeacherDetails
+    TestResults: List[TestResultInProfile] 
 
     class Config:
         orm_mode = True
@@ -43,3 +57,5 @@ class UserProfileResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+from typing import List
