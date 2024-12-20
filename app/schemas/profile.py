@@ -1,9 +1,22 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 
+class TestResultInProfile(BaseModel):
+    testName: str
+    testTopic: str
+    totalQuestions: int
+    rightAnswersCount: int
+    wrongAnswersCount: int
+    subTopics: List[str]
+
+    class Config:
+        orm_mode = True
+
 class StudentDetails(BaseModel):
     StudentId: str
     StudentName: str
+    TestResults: List[TestResultInProfile]
+    Comments: List[str]
 
 class TeacherDetails(BaseModel):
     TeacherId: str
@@ -22,17 +35,6 @@ class TeacherProfileDetails(BaseModel):
     class Config:
         orm_mode = True
 
-
-class TestResultInProfile(BaseModel):
-    testName: str
-    testTopic: str
-    totalQuestions: int
-    rightAnswersCount: int
-    wrongAnswersCount: int
-    subTopics: List[str]
-
-    class Config:
-        orm_mode = True
 
 
 class StudentProfileDetails(BaseModel):
@@ -59,3 +61,6 @@ class UserProfileResponse(BaseModel):
         orm_mode = True
 
 from typing import List
+
+class CommentRequest(BaseModel):
+    comment: str

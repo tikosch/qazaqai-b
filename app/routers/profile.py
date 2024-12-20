@@ -1,14 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.db.session import get_db
-from app.schemas.profile import TeacherProfileDetails, StudentProfileDetails, StudentDetails, TeacherDetails, TestResultInProfile
+from app.schemas.profile import TeacherProfileDetails, StudentProfileDetails, StudentDetails, TeacherDetails, TestResultInProfile, CommentRequest
 from app.core.security import decode_token
+from app.models.student_comment import StudentComment
 from app.models.teacher_referral import TeacherReferral
 from app.models.teacher_student import TeacherStudents
 from app.models.user import User
 from app.models.testres import TestResult
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
+from app.crud.student_comment import add_comment
 
 router = APIRouter()
 
@@ -43,11 +45,33 @@ def get_profile(db: Session = Depends(get_db), current_user_and_payload=Depends(
         teacher_students = db.query(TeacherStudents).filter(TeacherStudents.teacher_id == user_id).all()
         count = len(teacher_students)
         student_ids = [ts.student_id for ts in teacher_students]
+
         students = []
         if student_ids:
-            q = db.query(User).filter(User.id.in_(student_ids)).all()
-            students = [StudentDetails(StudentId=str(s.id), StudentName=s.username) for s in q]
+            q = db.query(User).options(joinedload(User.test_results)).filter(User.id.in_(student_ids)).all()
+            for s in q:
+                comments = db.query(StudentComment).filter(StudentComment.student_id == s.id).all()
+                serialized_comments = [comment.comment for comment in comments]
+                students.append(
+                    StudentDetails(
+                        StudentId=str(s.id),
+                        StudentName=s.username,
+                        TestResults=[
+                            TestResultInProfile(
+                                testName=tr.testName,
+                                testTopic=tr.testTopic,
+                                totalQuestions=tr.totalQuestions,
+                                rightAnswersCount=tr.rightAnswersCount,
+                                wrongAnswersCount=tr.wrongAnswersCount,
+                                subTopics=tr.subTopics
+                            )
+                            for tr in s.test_results
+                        ],
+                        Comments=serialized_comments
+                    )
+                )
 
+            
         return TeacherProfileDetails(
             Id=str(user_id),
             UserName=user.username,
@@ -93,3 +117,23 @@ def get_profile(db: Session = Depends(get_db), current_user_and_payload=Depends(
         )
     else:
         raise HTTPException(status_code=403, detail="Role not supported")
+
+@router.post("/students/{student_id}/comments")
+def add_student_comment(
+    student_id: str,
+    request: CommentRequest,
+    db: Session = Depends(get_db),
+    current_user_and_payload=Depends(get_current_user)
+):
+    user, payload = current_user_and_payload
+    roles = payload.get("roles", [])
+    if SYSTEM_ROLES_TEACHER not in roles:
+        raise HTTPException(status_code=403, detail="Only teachers can add comments.")
+
+    teacher_id = user.id
+    student = db.query(User).filter(User.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found.")
+
+    student_comment = add_comment(db, teacher_id, student_id, request.comment)
+    return {"message": "Comment added successfully", "comment": student_comment.comment}
