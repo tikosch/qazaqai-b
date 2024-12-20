@@ -20,6 +20,8 @@ class User(Base):
     roles = relationship("Role", secondary=user_roles, back_populates="users")
     tests = relationship("Test", back_populates="teacher")
     test_results = relationship("TestResult", back_populates="student")
+    evaluations = relationship("Evaluation", back_populates="user")
+
 
 class Role(Base):
     __tablename__ = "roles"
