@@ -104,6 +104,10 @@ def get_profile(db: Session = Depends(get_db), current_user_and_payload=Depends(
             for result in test_results
         ]
 
+        # Fetch comments from the teacher for the student
+        comments = db.query(StudentComment).filter(StudentComment.student_id == user_id).all()
+        serialized_comments = [comment.comment for comment in comments]
+
         return StudentProfileDetails(
             Id=str(user_id),
             UserName=user.username,
@@ -113,7 +117,8 @@ def get_profile(db: Session = Depends(get_db), current_user_and_payload=Depends(
                 TeacherId=str(teacher.id),
                 TeacherName=teacher.username
             ),
-            TestResults=serialized_results  # Include test results in the profile
+            TestResults=serialized_results,
+            Comments=serialized_comments  # Include comments in the response
         )
     else:
         raise HTTPException(status_code=403, detail="Role not supported")

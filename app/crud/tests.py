@@ -48,3 +48,11 @@ def serialize_test(test: Test):
 def get_all_tests(db: Session):
     tests = db.query(Test).all()
     return tests if tests else []  # Ensure it returns an empty list, not None
+
+def delete_test_by_id(db: Session, test_id: int, teacher_id: str):
+    test = db.query(Test).filter(Test.id == test_id, Test.teacher_id == teacher_id).first()
+    if not test:
+        return None
+    db.delete(test)
+    db.commit()
+    return test

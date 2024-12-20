@@ -43,7 +43,8 @@ class StudentProfileDetails(BaseModel):
     Email: EmailStr
     PhoneNumber: str
     Teacher: TeacherDetails
-    TestResults: List[TestResultInProfile] 
+    TestResults: List[TestResultInProfile]
+    Comments: List[str]
 
     class Config:
         orm_mode = True
