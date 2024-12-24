@@ -21,6 +21,7 @@ class User(Base):
     tests = relationship("Test", back_populates="teacher")
     test_results = relationship("TestResult", back_populates="student")
     evaluations = relationship("Evaluation", back_populates="user")
+    model_test_results = relationship("ModelTestResult", back_populates="student")
 
 
 class Role(Base):

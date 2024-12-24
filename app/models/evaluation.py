@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
-from app.db.base import Base
 from sqlalchemy.orm import relationship
+from app.db.base import Base
+
 
 class Evaluation(Base):
     __tablename__ = "evaluations"

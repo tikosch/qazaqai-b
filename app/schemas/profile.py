@@ -35,7 +35,13 @@ class TeacherProfileDetails(BaseModel):
     class Config:
         orm_mode = True
 
+class ModelTestResultInProfile(BaseModel):
+    question: str
+    user_answer: str
+    similarity_score: float
 
+    class Config:
+        orm_mode = True
 
 class StudentProfileDetails(BaseModel):
     Id: str
@@ -44,6 +50,7 @@ class StudentProfileDetails(BaseModel):
     PhoneNumber: str
     Teacher: TeacherDetails
     TestResults: List[TestResultInProfile]
+    ModelTestResults: List[ModelTestResultInProfile]  # New field for model test results
     Comments: List[str]
 
     class Config:

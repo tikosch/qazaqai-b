@@ -11,6 +11,7 @@ from app.models.testres import TestResult
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from app.crud.student_comment import add_comment
+from app.models.model_test_results import ModelTestResult
 
 router = APIRouter()
 
@@ -103,6 +104,15 @@ def get_profile(db: Session = Depends(get_db), current_user_and_payload=Depends(
             )
             for result in test_results
         ]
+        model_test_results = db.query(ModelTestResult).filter(ModelTestResult.student_id == user_id).all()
+        serialized_model_test_results = [
+        {
+            "question": result.question,
+            "user_answer": result.user_answer,
+            "similarity_score": result.similarity_score
+        }
+        for result in model_test_results
+    ]
 
         # Fetch comments from the teacher for the student
         comments = db.query(StudentComment).filter(StudentComment.student_id == user_id).all()
@@ -118,6 +128,7 @@ def get_profile(db: Session = Depends(get_db), current_user_and_payload=Depends(
                 TeacherName=teacher.username
             ),
             TestResults=serialized_results,
+            ModelTestResults=serialized_model_test_results,
             Comments=serialized_comments  # Include comments in the response
         )
     else:

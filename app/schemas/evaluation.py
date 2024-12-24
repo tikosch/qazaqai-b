@@ -1,10 +1,5 @@
 from pydantic import BaseModel
 
-
-class QuestionRequest(BaseModel):
-    question: str
-
-
 class EvaluationCreate(BaseModel):
     question_id: int
     user_answer: str
