@@ -17,10 +17,12 @@ from app.models.model_test_results import ModelTestResult
 
 router = APIRouter()
 
-# Load model and tokenizer
-model_path = "final"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForQuestionAnswering.from_pretrained(model_path)
+# Specify the model identifier from Hugging Face
+model_identifier = "urahara119/qazaqai"  # Replace with your actual model identifier
+
+# Load model and tokenizer from Hugging Face
+tokenizer = AutoTokenizer.from_pretrained(model_identifier)
+model = AutoModelForQuestionAnswering.from_pretrained(model_identifier)
 model.eval()
 
 # Load the CSV
