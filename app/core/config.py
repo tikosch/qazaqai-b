@@ -2,7 +2,7 @@ import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql://postgres:Aitu2020!@localhost:5432/elearn_db"
+    DATABASE_URL: str = "postgresql://userdb:1k18MnsC6iV4ApTjE7hJfGus97MIzaHf@dpg-ctvv89popnds73duv4rg-a/elearndb_75qa"
     SECRET_KEY: str = "supersecretkey"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_HOURS: int = 24
