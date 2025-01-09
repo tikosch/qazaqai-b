@@ -2,12 +2,14 @@ import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql://userdb:1k18MnsC6iV4ApTjE7hJfGus97MIzaHf@dpg-ctvv89popnds73duv4rg-a/elearndb_75qa"
+    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5431/elearn_db"
     SECRET_KEY: str = "supersecretkey"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_HOURS: int = 24
+    port: int
 
     class Config:
         env_file = ".env"
+        extra = "allow"
 
 settings = Settings()
